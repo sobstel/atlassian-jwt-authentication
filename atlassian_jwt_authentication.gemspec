@@ -3,7 +3,7 @@ require 'atlassian-jwt-authentication/version'
 
 Gem::Specification.new do |s|
   s.platform     = Gem::Platform::RUBY
-  s.name         = 'atlassian-jwt-authentication'
+  s.name         = 'atlassian-jwt-authentication-herocoders'
   s.version      = AtlassianJwtAuthentication::VERSION
   s.summary      = 'DB architecture and controller filters for dealing with Atlassian\'s JWT authentication'
   s.description  = 'Atlassian JWT Authentication provides support for handling JWT authentication as required by Atlassian when building add-ons: https://developer.atlassian.com/static/connect/docs/latest/concepts/authentication.html'
