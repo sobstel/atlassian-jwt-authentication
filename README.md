@@ -9,13 +9,13 @@ Atlassian JWT Authentication provides support for handling JWT authentication as
 
 You can check out the latest source from git:
 
-`git clone https://github.com/MeisterLabs/atlassian-jwt-authentication.git`
+`git clone https://github.com/HeroCoders/atlassian-jwt-authentication.git`
 
 Or, if you're using Bundler, just add the following to your Gemfile:
 
 ```ruby
 gem 'atlassian-jwt-authentication', 
-  git: 'https://github.com/MeisterLabs/atlassian-jwt-authentication.git'
+  git: 'https://github.com/HeroCoders/atlassian-jwt-authentication.git'
 ```
 
 ## Usage
