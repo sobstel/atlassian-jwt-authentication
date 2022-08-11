@@ -1,4 +1,6 @@
-require_relative './http_client'
+# frozen_string_literal: true
+
+require_relative "./http_client"
 
 module AtlassianJwtAuthentication
   module Oauth2
@@ -6,11 +8,11 @@ module AtlassianJwtAuthentication
     AUTHORIZATION_SERVER_URL = "https://auth.atlassian.io"
     JWT_CLAIM_PREFIX = "urn:atlassian:connect"
     GRANT_TYPE = "urn:ietf:params:oauth:grant-type:jwt-bearer"
-    SCOPE_SEPARATOR = ' '
+    SCOPE_SEPARATOR = " "
 
     def self.get_access_token(current_jwt_token, account_id, scopes = nil)
       response = HttpClient.new.post(AUTHORIZATION_SERVER_URL + "/oauth2/token") do |request|
-        request.headers['Content-Type'] = Faraday::Request::UrlEncoded.mime_type
+        request.headers["Content-Type"] = Faraday::Request::UrlEncoded.mime_type
         request.body = {
           grant_type: GRANT_TYPE,
           assertion: prepare_jwt_token(current_jwt_token, account_id),
@@ -25,11 +27,11 @@ module AtlassianJwtAuthentication
 
     def self.prepare_jwt_token(current_jwt_token, account_id)
       unless current_jwt_token
-        raise 'Missing Authentication context'
+        raise "Missing Authentication context"
       end
 
       unless account_id
-        raise 'Missing User key'
+        raise "Missing User key"
       end
 
       # Expiry for the JWT token is 3 minutes from now

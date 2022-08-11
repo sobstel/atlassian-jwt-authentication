@@ -1,7 +1,9 @@
-require 'rspec'
-require 'active_support'
+# frozen_string_literal: true
 
-require File.dirname(__FILE__) + '/../lib/atlassian_jwt_authentication.rb'
+require "rspec"
+require "active_support"
+
+require File.dirname(__FILE__) + "/../lib/atlassian_jwt_authentication.rb"
 
 RSpec.configure do |config|
   config.order = :random

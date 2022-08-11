@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module AtlassianJwtAuthentication
   module Middleware
     class VerifyJwtToken
-      PREFIX = 'atlassian_jwt_authentication'.freeze
+      PREFIX = "atlassian_jwt_authentication".freeze
 
       JWT_TOKEN_HEADER = "#{PREFIX}.jwt_token".freeze
       JWT_CONTEXT = "#{PREFIX}.context".freeze
@@ -26,9 +28,9 @@ module AtlassianJwtAuthentication
 
         jwt = request.params[:jwt]
 
-        if request.headers['authorization'].present?
-          algorithm, possible_jwt = request.headers['authorization'].split(' ')
-          jwt = possible_jwt if algorithm == 'JWT'
+        if request.headers["authorization"].present?
+          algorithm, possible_jwt = request.headers["authorization"].split(" ")
+          jwt = possible_jwt if algorithm == "JWT"
         end
 
         if jwt

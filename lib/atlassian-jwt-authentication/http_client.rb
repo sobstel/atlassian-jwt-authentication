@@ -1,4 +1,6 @@
-require 'faraday'
+# frozen_string_literal: true
+
+require "faraday"
 
 module AtlassianJwtAuthentication
   module HttpClient

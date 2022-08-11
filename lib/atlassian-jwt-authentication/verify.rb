@@ -1,9 +1,12 @@
-require 'jwt'
+# frozen_string_literal: true
+
+require "jwt"
 
 module AtlassianJwtAuthentication
   class JWTVerification
     attr_accessor :addon_key, :jwt, :audience, :force_asymmetric_verify, :request, :exclude_qsh_params, :logger
 
+    UNVERIFIED_RESULT = [nil, nil, nil, false, false]
     def initialize(addon_key, audience, force_asymmetric_verify, jwt, request, &block)
       self.addon_key = addon_key
       self.audience = audience
@@ -14,10 +17,9 @@ module AtlassianJwtAuthentication
       self.exclude_qsh_params = []
       self.logger = nil
 
-      yield self if block_given?
+      yield self if block
     end
 
-    UNVERIFIED_RESULT = [nil, nil, nil, false, false]
 
     def verify
       unless jwt.present? && addon_key.present?
@@ -38,18 +40,18 @@ module AtlassianJwtAuthentication
 
       # Find a matching JWT token in the DB
       jwt_auth = JwtToken.where(
-          client_key: data['iss'],
-          addon_key: addon_key
+        client_key: data["iss"],
+        addon_key: addon_key
       ).first
 
       # Discard the tokens without verification
-      if encoding_data['alg'] == 'none'
+      if encoding_data["alg"] == "none"
         log(:error, "The JWT checking algorithm was set to none for client_key #{data['iss']} and addon_key #{addon_key}")
         return UNVERIFIED_RESULT
       end
 
       if force_asymmetric_verify ||
-        AtlassianJwtAuthentication.signed_install && encoding_data['alg'] == 'RS256'
+        AtlassianJwtAuthentication.signed_install && encoding_data["alg"] == "RS256"
         response = Faraday.get("https://connect-install-keys.atlassian.com/#{encoding_data['kid']}")
         unless response.success? && response.body
           log(:error, "Error retrieving atlassian public key. Response code #{response.status} and kid #{encoding_data['kid']}")
@@ -67,8 +69,8 @@ module AtlassianJwtAuthentication
       end
 
       decode_options = {}
-      if encoding_data['alg'] == 'RS256'
-        decode_options = { algorithms: ['RS256'], verify_aud: true, aud: audience }
+      if encoding_data["alg"] == "RS256"
+        decode_options = { algorithms: ["RS256"], verify_aud: true, aud: audience }
       end
 
       # Decode the token again, this time with signature & claims verification
@@ -90,40 +92,40 @@ module AtlassianJwtAuthentication
         return UNVERIFIED_RESULT
       end
 
-      if data['qsh']
+      if data["qsh"]
         # Verify the query has not been tampered by Creating a Query Hash and
         # comparing it against the qsh claim on the verified token
         if jwt_auth.present? && jwt_auth.base_url.present? && request.url.include?(jwt_auth.base_url)
-          path = request.url.gsub(jwt_auth.base_url, '')
+          path = request.url.gsub(jwt_auth.base_url, "")
         else
-          path = request.path.gsub(AtlassianJwtAuthentication::context_path, '')
+          path = request.path.gsub(AtlassianJwtAuthentication.context_path, "")
         end
-        path = '/' if path.empty?
+        path = "/" if path.empty?
 
         qsh_parameters = request.query_parameters.except(:jwt)
 
         exclude_qsh_params.each { |param_name| qsh_parameters = qsh_parameters.except(param_name) }
 
-        qsh = request.method.upcase + '&' + path + '&' +
+        qsh = request.method.upcase + "&" + path + "&" +
             qsh_parameters.
                 sort.
-                map{ |param_pair| encode_param(param_pair) }.
-                join('&')
+                map { |param_pair| encode_param(param_pair) }.
+                join("&")
 
         qsh = Digest::SHA256.hexdigest(qsh)
 
-        qsh_verified = data['qsh'] == qsh
+        qsh_verified = data["qsh"] == qsh
       else
         qsh_verified = false
       end
 
-      context = data['context']
+      context = data["context"]
 
       # In the case of Confluence and Jira we receive user information inside the JWT token
-      if data['context'] && data['context']['user']
-        account_id = data['context']['user']['accountId']
+      if data["context"] && data["context"]["user"]
+        account_id = data["context"]["user"]["accountId"]
       else
-        account_id = data['sub']
+        account_id = data["sub"]
       end
 
       [jwt_auth, account_id, context, qsh_verified, true]
@@ -131,20 +133,20 @@ module AtlassianJwtAuthentication
 
     private
 
-    def encode_param(param_pair)
-      key, value = param_pair
+      def encode_param(param_pair)
+        key, value = param_pair
 
-      if value.respond_to?(:to_query)
-        value.to_query(key)
-      else
-        ERB::Util.url_encode(key) + '=' + ERB::Util.url_encode(value)
+        if value.respond_to?(:to_query)
+          value.to_query(key)
+        else
+          ERB::Util.url_encode(key) + "=" + ERB::Util.url_encode(value)
+        end
       end
-    end
 
-    def log(level, message)
-      return if logger.nil?
+      def log(level, message)
+        return if logger.nil?
 
-      logger.send(level.to_sym, message)
-    end
+        logger.send(level.to_sym, message)
+      end
   end
 end
