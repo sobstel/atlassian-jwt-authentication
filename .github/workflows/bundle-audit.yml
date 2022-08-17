@@ -15,4 +15,6 @@ jobs:
           ruby-version: '2.7'
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Bundle audit
-        run: bundle audit --update
+        run: |
+          gem install bundle-audit
+          bundle audit --update
