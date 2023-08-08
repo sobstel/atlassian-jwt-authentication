@@ -1,6 +1,7 @@
 name: Daily bundle audit
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "30 7 * * *"
 
